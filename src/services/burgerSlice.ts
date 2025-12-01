@@ -22,7 +22,8 @@ export const orderBurgerThunk = createAsyncThunk<
   }
   const ingredientIds: string[] = [
     bun._id,
-    ...ingredients.map((ingredient) => ingredient._id)
+    ...ingredients.map((ingredient) => ingredient._id),
+    bun._id
   ];
   const response = await orderBurgerApi(ingredientIds);
   thunkAPI.dispatch(getFeedThunk());
@@ -64,14 +65,15 @@ export const burgerSlice = createSlice({
     clearOrderModal: (state) => {
       state.orderModalData = null;
     },
-    addItem: (state, action: PayloadAction<TIngredient>) => {
-      const itemToAdd: TConstructorIngredient = {
-        ...action.payload,
-        id: nanoid()
-      };
-      itemToAdd.type === 'bun'
-        ? (state.constructorItems.bun = itemToAdd)
-        : state.constructorItems.ingredients.push(itemToAdd);
+    addItem: {
+      reducer: (state, action: PayloadAction<TConstructorIngredient>) => {
+        action.payload.type === 'bun'
+          ? (state.constructorItems.bun = action.payload)
+          : state.constructorItems.ingredients.push(action.payload);
+      },
+      prepare: (ingredient: TIngredient) => ({
+        payload: { ...ingredient, id: nanoid() }
+      })
     },
     removeItem: (state, action: PayloadAction<string>) => {
       state.constructorItems.ingredients =

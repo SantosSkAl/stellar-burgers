@@ -65,9 +65,13 @@ export const ordersSlice = createSlice({
       state.selectedOrder = action.payload.orders[0] || null;
       state.error = null;
     });
+  },
+  selectors: {
+    isUserOrders: (state) => !!state.userOrders.length
   }
 });
 
 export const { clearUserOrders } = ordersSlice.actions;
+export const { isUserOrders } = ordersSlice.selectors;
 
 export default ordersSlice.reducer;

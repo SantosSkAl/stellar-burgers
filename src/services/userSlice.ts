@@ -38,6 +38,8 @@ export const getUserThunk = createAsyncThunk(
       // thunkAPI.dispatch(getUserOrdersThunk());
       return response;
     } catch (err) {
+      // thunkAPI.dispatch(clearUser()); // reject сам это сделает
+      thunkAPI.dispatch(clearUserOrders());
       clearTokens();
       throw err;
     }
@@ -74,11 +76,11 @@ export const logoutUserThunk = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       await logoutApi();
-      thunkAPI.dispatch(userLogout());
+      thunkAPI.dispatch(clearUser());
       thunkAPI.dispatch(clearUserOrders());
       clearTokens();
     } catch (err) {
-      thunkAPI.dispatch(userLogout());
+      thunkAPI.dispatch(clearUser());
       thunkAPI.dispatch(clearUserOrders());
       clearTokens();
       throw err;
@@ -107,7 +109,7 @@ export const userSlice = createSlice({
     authChecked: (state) => {
       state.isAuthChecked = true;
     },
-    userLogout: (state) => {
+    clearUser: (state) => {
       state.user = null;
     },
     clearError: (state) => {
@@ -179,6 +181,6 @@ export const userSlice = createSlice({
   }
 });
 
-export const { authChecked, userLogout, clearError } = userSlice.actions;
+export const { authChecked, clearUser, clearError } = userSlice.actions;
 
 export default userSlice.reducer;

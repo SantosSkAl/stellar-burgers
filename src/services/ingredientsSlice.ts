@@ -1,6 +1,11 @@
 import { getIngredientsApi } from '@api';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice
+} from '@reduxjs/toolkit';
 import { TIngredient } from '@utils-types';
+import { RootState } from './store';
 
 export const getIngredientsThunk = createAsyncThunk(
   'ingredients/getIngredients',
@@ -39,5 +44,25 @@ export const ingredientsSlice = createSlice({
     });
   }
 });
+
+// базовый селектор, достаёт из стора нужный нам стейт (его можно указать также
+// в selectors слайса и потом обращатся к нему через ingredientsSlice.selectors)
+const ingredientsSelector = (store: RootState) => store.ingredients.ingredients;
+
+// производные селекторы, мемоизация вшита под капотом фунции createSelector
+// (если указывать селекторы просто в selectors слайса - мемоизации не будет)
+export const selectBuns = createSelector([ingredientsSelector], (ingredients) =>
+  ingredients.filter((ingredient) => ingredient.type === 'bun')
+);
+export const selectMains = createSelector(
+  [ingredientsSelector],
+  (ingredients) =>
+    ingredients.filter((ingredient) => ingredient.type === 'main')
+);
+export const selectSauces = createSelector(
+  [ingredientsSelector],
+  (ingredients) =>
+    ingredients.filter((ingredient) => ingredient.type === 'sauce')
+);
 
 export default ingredientsSlice.reducer;

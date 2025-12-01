@@ -1,6 +1,14 @@
-// prettier-ignore
-/* eslint-disable */
-import { ConstructorPage, Feed, ForgotPassword, Login, NotFound404, Profile, ProfileOrders, Register, ResetPassword } from '@pages';
+import {
+  ConstructorPage,
+  Feed,
+  ForgotPassword,
+  Login,
+  NotFound404,
+  Profile,
+  ProfileOrders,
+  Register,
+  ResetPassword
+} from '@pages';
 import '../../index.css';
 import styles from './app.module.css';
 
@@ -10,7 +18,7 @@ import {
   Routes,
   useLocation,
   useMatch,
-  useNavigate,
+  useNavigate
 } from 'react-router-dom';
 import { ProtectedRoute } from '../protected-route';
 import { useDispatch, useSelector } from '../../services/store';
@@ -32,14 +40,45 @@ const App = () => {
   useEffect(() => {
     dispatch(getUserThunk());
     dispatch(getIngredientsThunk());
+    // данные (если они не супер большие) стараюсь подгрузить когда пользователь
+    // от них в одном клике (чтобы меньше загрузок пользователь наблюдал),
+    // вот например тут, лента заказов в одном клике от главной - гружу с сервара сразу.
+    // Заказы пользователя, утащил в компоненты /profile и /profile/orders, ниже дал комент.
+    // Имеет право на жизнь?
     dispatch(getFeedThunk());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (user) {
-      dispatch(getUserOrdersThunk());
-    }
-  }, [user, dispatch]);
+  // Когда, вы итоге, поместил getUserOrdersThunk() сюда в app , логика была такая:
+  // Хочу показывать пользователю как можно меньше лоадеров, значит надо расставить этот вызов
+  // по тем местам, что находятся в одном клике от отрисовки, т.е в даном случае в
+  // компонет обслуживающий /profile, но всплылы нюансы с авторизацией и
+  // перенаправлениями, например корнер кейс: пользователь зайдет на страницу со своими
+  // заказами => нажмет "выйти" => будет перекинут на страницу логина => залогинится под другим
+  // акком => система вернет его на страницу с личными заказами /profile/orders, перепригнув
+  // при этом /profile... значит логику запроса getUserOrdersThunk() я также должен поставить и в
+  // местах непосредственного использования заказов пользователя. Также, чтобы не дергать много
+  // раз сервер нужна проверка есть ли у меня уже эти данные для этого пользователя т.е еще кросчеки.
+  // В сухом остатке:
+  // 1) если все тащить в app:
+  //  + логика подгрузки ассетов не усложняется и не расползается по приложению;
+  //  + пользователь видит минимум прелоадеров;
+  //  - нагрузка на приложение и сервер потенциально лишними запросами.
+  // 2) если делать запрос для каждого ассета прям по месту использования:
+  //  +/- логика подгрузки ассетов умеренно расползается по приложению;
+  //  - пользователь видит максимум прелоадеров;
+  //  + только необходимые запросы на сервер.
+  // 3) если делать запрос для каждого ассета прям по месту использования + в одном клике:
+  //  - логика подгрузки ассетов сильно расползается по приложению и обастает кросчеками;
+  //  + пользователь видит миниимум прелоадеров;
+  //  + только необходимые запросы на сервер.
+  // Получается у меня был вариант "1", а сейчас я переделал под "3". Не могли бы вы
+  // порекоментовать что-то по поводу вышеописанного из личного опыта или может хорошие
+  // материалы по теме порекомендоать
+  // useEffect(() => {
+  //   if (user) {
+  //     dispatch(getUserOrdersThunk());
+  //   }
+  // }, [user, dispatch]);
 
   const handleCloseModal = () => {
     navigate(background, { replace: true });
@@ -116,10 +155,7 @@ const App = () => {
           <Route
             path='/feed/:number'
             element={
-              <Modal
-                title={`#${feedMatch}`}
-                onClose={handleCloseModal}
-              >
+              <Modal title={`#${feedMatch}`} onClose={handleCloseModal}>
                 <OrderInfo />
               </Modal>
             }
@@ -127,10 +163,7 @@ const App = () => {
           <Route
             path='/ingredients/:id'
             element={
-              <Modal
-                title='Детали инградиента'
-                onClose={handleCloseModal}
-              >
+              <Modal title='Детали инградиента' onClose={handleCloseModal}>
                 <IngredientDetails />
               </Modal>
             }
@@ -139,10 +172,7 @@ const App = () => {
             path='/profile/orders/:number'
             element={
               <ProtectedRoute>
-                <Modal
-                  title={`#${profileMatch}`}
-                  onClose={handleCloseModal}
-                >
+                <Modal title={`#${profileMatch}`} onClose={handleCloseModal}>
                   <OrderInfo />
                 </Modal>
               </ProtectedRoute>
