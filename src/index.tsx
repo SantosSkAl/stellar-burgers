@@ -8,12 +8,13 @@ import store from './services/store';
 const container = document.getElementById('root') as HTMLElement;
 const root = ReactDOMClient.createRoot(container!);
 
-const basename = '/stellar-burgers';
+// const basename = '/stellar-burgers'; // для gh-pages
 
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <BrowserRouter basename={basename}>
+      {/* <BrowserRouter basename={basename}> */}
+      <BrowserRouter>
         <App />
       </BrowserRouter>
     </Provider>
