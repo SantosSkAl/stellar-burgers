@@ -9,7 +9,11 @@ import {
 } from '@zlden/react-developer-burger-ui-components';
 import { Link, NavLink } from 'react-router-dom';
 
-export const AppHeaderUI: FC<TAppHeaderUIProps> = ({ userName }) => (
+export const AppHeaderUI: FC<TAppHeaderUIProps> = ({
+  userName,
+  onLogoClick,
+  isLogoPlaying
+}) => (
   <header className={styles.header}>
     <nav className={`${styles.menu} p-4`}>
       <div className={styles.menu_part_left}>
@@ -43,9 +47,13 @@ export const AppHeaderUI: FC<TAppHeaderUIProps> = ({ userName }) => (
         </NavLink>
       </div>
 
-      <Link to='/' className={styles.logo}>
+      {/* <Link to='/' className={styles.logo}>
         <Logo className='' />
-      </Link>
+      </Link> */}
+
+      <div className={styles.logo} onClick={onLogoClick}>
+        <Logo className={isLogoPlaying ? styles.logo_playing : ''} />
+      </div>
 
       <NavLink
         to='/profile'
