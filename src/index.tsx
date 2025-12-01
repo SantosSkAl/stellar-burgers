@@ -9,6 +9,8 @@ const container = document.getElementById('root') as HTMLElement;
 const root = ReactDOMClient.createRoot(container!);
 
 // const basename = '/stellar-burgers'; // для gh-pages
+// также для билда нужно добавить publicPath: '/stellar-burgers/' в
+// output обьект вебпак конфига
 
 root.render(
   <React.StrictMode>
