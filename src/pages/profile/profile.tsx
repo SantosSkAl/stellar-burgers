@@ -1,16 +1,16 @@
 import { ProfileUI } from '@ui-pages';
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from '../../services/store';
+import { updateUserThunk } from '../../services/userSlice';
+import { getUserOrdersThunk, isUserOrders } from '../../services/ordersSlice';
 
 export const Profile: FC = () => {
-  /** TODO: взять переменную из стора */
-  const user = {
-    name: '',
-    email: ''
-  };
+  const user = useSelector((store) => store.user.user);
+  const dispatch = useDispatch();
 
   const [formValue, setFormValue] = useState({
-    name: user.name,
-    email: user.email,
+    name: user?.name || '',
+    email: user?.email || '',
     password: ''
   });
 
@@ -22,6 +22,15 @@ export const Profile: FC = () => {
     }));
   }, [user]);
 
+  // запрашиваю у сервера заказы пользователя в одном клике от места
+  // где они будут запрошенны из локального стора, с кросчеком
+  const isOders = useSelector(isUserOrders);
+  useEffect(() => {
+    if (user && !isOders) {
+      dispatch(getUserOrdersThunk());
+    }
+  }, [user, isOders, dispatch]);
+
   const isFormChanged =
     formValue.name !== user?.name ||
     formValue.email !== user?.email ||
@@ -29,13 +38,14 @@ export const Profile: FC = () => {
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
+    dispatch(updateUserThunk(formValue));
   };
 
   const handleCancel = (e: SyntheticEvent) => {
     e.preventDefault();
     setFormValue({
-      name: user.name,
-      email: user.email,
+      name: user?.name || '',
+      email: user?.email || '',
       password: ''
     });
   };
@@ -56,6 +66,4 @@ export const Profile: FC = () => {
       handleInputChange={handleInputChange}
     />
   );
-
-  return null;
 };

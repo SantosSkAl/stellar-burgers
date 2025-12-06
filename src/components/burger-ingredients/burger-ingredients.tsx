@@ -1,14 +1,41 @@
-import { useState, useRef, useEffect, FC } from 'react';
+import { useState, useRef, useEffect, FC, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import { TTabMode } from '@utils-types';
 import { BurgerIngredientsUI } from '../ui/burger-ingredients';
+import { useSelector } from '../../services/store';
+import {
+  selectBuns,
+  selectMains,
+  selectSauces
+} from '../../services/ingredientsSlice';
 
 export const BurgerIngredients: FC = () => {
-  /** TODO: взять переменные из стора */
-  const buns = [];
-  const mains = [];
-  const sauces = [];
+  const ingredients = useSelector((store) => store.ingredients.ingredients);
+
+  // плохо, пересчитывается при ререндере
+  // const buns = ingredients.filter((ingr) => ingr.type === 'bun');
+  // const mains = ingredients.filter((ingr) => ingr.type === 'main');
+  // const sauces = ingredients.filter((ingr) => ingr.type === 'sauce');
+
+  // хорошо, не пересчитываются при ререндере, логика в компоненте/ах
+  // const buns = useMemo(
+  //   () => ingredients.filter((ingredient) => ingredient.type === 'bun'),
+  //   [ingredients]
+  // );
+  // const mains = useMemo(
+  //   () => ingredients.filter((ingredient) => ingredient.type === 'main'),
+  //   [ingredients]
+  // );
+  // const sauces = useMemo(
+  //   () => ingredients.filter((ingredient) => ingredient.type === 'sauce'),
+  //   [ingredients]
+  // );
+
+  // хорошо, не пересчитываются при ререндере, логика в слайсе
+  const buns = useSelector(selectBuns);
+  const mains = useSelector(selectMains);
+  const sauces = useSelector(selectSauces);
 
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
   const titleBunRef = useRef<HTMLHeadingElement>(null);
@@ -46,8 +73,6 @@ export const BurgerIngredients: FC = () => {
     if (tab === 'sauce')
       titleSaucesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-
-  return null;
 
   return (
     <BurgerIngredientsUI
