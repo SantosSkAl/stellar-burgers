@@ -42,7 +42,7 @@ export interface BurgerState {
   error: string | null;
 }
 
-const initialState: BurgerState = {
+export const initialState: BurgerState = {
   constructorItems: {
     bun: null,
     ingredients: []

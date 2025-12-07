@@ -121,6 +121,12 @@ describe('Конструктор бургера', () => {
       cy.wait('@getIngredients');
       cy.wait('@getUser');
     });
+    afterEach(() => {
+      cy.clearCookie('accessToken');
+      cy.window().then((win) => {
+        win.localStorage.removeItem('refreshToken');
+      });
+    });
 
     it('создание и оформление заказа', () => {
       // сборка бургера
@@ -130,7 +136,7 @@ describe('Конструктор бургера', () => {
       cy.get('@bun').within(() => {
         cy.contains('Добавить').click();
       });
-      // поидее достаточно только булки для данного теста
+      // по идее достаточно только булки для данного теста
       cy.get('[data-cy="burger-ingredient"][data-cy-type="main"]')
         .first()
         .as('main');
