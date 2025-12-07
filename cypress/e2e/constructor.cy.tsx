@@ -1,6 +1,8 @@
 describe('Конструктор бургера', () => {
   beforeEach(() => {
     // общий сетап
+    // если не точно известно, к какому домену в текущий момент должен отправляться
+    // запрос, в URL запроса можно указывать звёздочки '**/api/ingredients'
     cy.intercept('GET', '/api/ingredients', {
       fixture: 'ingredients.json'
     }).as('getIngredients');
